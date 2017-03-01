@@ -382,7 +382,7 @@ var JSSDKDemo = (function() {
         ready_to_accept_input = true;
     };
     
-    var video_ids = ["ugo7Y2lRsxc", "Pc7BnT5X1tw", "IV_ef2mm4G0", "dlNO2trC-mk", "ugn_qmQ0NFo", "o2P5E7cFt9s"];
+    var video_ids = ["ugo7Y2lRsxc", "Pc7BnT5X1tw", "IV_ef2mm4G0", "dlNO2trC-mk", "ugn_qmQ0NFo", "7u6M18M3D0s"];
     
     var populate_examples = function() {
         video_ids.forEach(function(element, index) {
