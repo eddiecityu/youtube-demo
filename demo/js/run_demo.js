@@ -394,14 +394,16 @@ var JSSDKDemo = (function() {
             var url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + element + "&key=" + API_KEY;
             http_get_async(url, function(text) {
                 var results = JSON.parse(text);
-                var title = results.items[0].snippet.title;
-                $(id).hover(function() {
-                    this.style.backgroundBlendMode = "overlay";
-                    $(this)[0].innerText = title;
-                }, function(){
-                    this.style.backgroundBlendMode = "initial";
-                    $(this)[0].innerText = "";
-                });
+                if (results.items.length > 0) {
+                    var title = results.items[0].snippet.title;
+                    $(id).hover(function() {
+                        this.style.backgroundBlendMode = "overlay";
+                        $(this)[0].innerText = title;
+                    }, function(){
+                        this.style.backgroundBlendMode = "initial";
+                        $(this)[0].innerText = "";
+                    });
+                }
             });
         });
     };
@@ -489,9 +491,14 @@ var JSSDKDemo = (function() {
                     },
                     events: {
                         "onError": onPlayerError,
+                        "onReady": onPlayerReady,
                         "onStateChange": onPlayerStateChange
                     }
                 });
+
+                function onPlayerReady(e) {
+                    return;
+                }
 
                 function onPlayerError(event) {
                     show_message("msg-bad-url");
@@ -506,32 +513,34 @@ var JSSDKDemo = (function() {
                         if (status === YT.PlayerState.PLAYING) {
                             video_duration_sec = player.getDuration();
                             
-                            if (video_duration_sec > VIDEO_LENGTH_THRESHOLD) {
-                                
-                                if (start_time > 0) { // started playing again after buffering
-                                    capture_frames = true;
-                                    stop_capture_timeout = setTimeout(stop_capture, time_left_sec * 1000);
+                            if (video_duration_sec > 0) {
+                                if (video_duration_sec > VIDEO_LENGTH_THRESHOLD) {
+                                    if (start_time > 0) { // started playing again after buffering
+                                        capture_frames = true;
+                                        stop_capture_timeout = setTimeout(stop_capture, time_left_sec * 1000);
+
+                                        // add how much time was spent buffering
+                                        var buffer_time = Date.now() - buffer_start_time_ms;
+                                        time_buffering_ms += buffer_time;
                                     
-                                    // add how much time was spent buffering
-                                    var buffer_time = Date.now() - buffer_start_time_ms;
-                                    time_buffering_ms += buffer_time;
-                                    
-                                } else { // just started playing from the beginning
-                                    start_time = Date.now();
-                                    player.setVolume(VIDEO_VOLUME);
-                                    video_duration_ms = video_duration_sec * 1000;
-                                    video_cutoff_sec = Math.floor(video_duration_sec);
-                                    t = d3.scale.linear().domain([0, video_duration_sec]).range([0, svg_width]);
-                                    begin_capture();
+                                    } else { // just started playing from the beginning
+                                        start_time = Date.now();
+                                        player.setVolume(VIDEO_VOLUME);
+                                        video_duration_ms = video_duration_sec * 1000;
+                                        video_cutoff_sec = Math.floor(video_duration_sec);
+                                        t = d3.scale.linear().domain([0, video_duration_sec]).range([0, svg_width]);
+                                        begin_capture();
+                                    }
                                 }
-                                
-                            } else { // video loads and starts playing but is too short
-                                show_message("msg-short-video");
-                                player.stopVideo();
-                                ready_to_accept_input = true;
+                                else { // video loads and starts playing but is too short
+                                    show_message("msg-short-video");
+                                    player.stopVideo();
+                                    ready_to_accept_input = true;
+                                }
                             }
                             
-                        } else if (status === YT.PlayerState.BUFFERING && video_duration_sec > VIDEO_LENGTH_THRESHOLD) { // video is valid but needs to buffer
+                        }
+                        else if (status === YT.PlayerState.BUFFERING && video_duration_sec > VIDEO_LENGTH_THRESHOLD) { // video is valid but needs to buffer
                             capture_frames = false;
                             clearTimeout(stop_capture_timeout);
                             time_left_sec = video_duration_sec - player.getCurrentTime();
