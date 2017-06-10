@@ -43,3 +43,9 @@ $ python -m http.server 8000
 ```
 
 Once the server is up, open a web browser and navigate to [http://localhost:8000/](http://localhost:8000/). The demo should start loading.
+
+#### Supported Browsers
+
+* Chrome 51 or higher
+* Firefox 47 or higher
+* Opera 37
