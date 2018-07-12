@@ -4,10 +4,6 @@ This demo uses Affectiva's JavaScript SDK to analyze your emotions as you watch 
 
 For more information about Affectiva's JavaScript SDK, visit http://developer.affectiva.com/. 
 
-## Try it Now!
-
-Click [here](https://affectiva.github.io/youtube-demo) to try the demo.
-
 ## Running the Demo Locally:
 
 ### Requirements:
